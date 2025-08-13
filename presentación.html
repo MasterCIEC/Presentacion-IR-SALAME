@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instalación y Repuestos SALAME C.A. — Presentación Interactiva</title>
+  <style>
+    :root{
+      --bg:#0f172a;           /* pizarra oscura */
+      --card:#111827;
+      --fg:#e5e7eb;
+      --muted:#9ca3af;
+      --brand:#00a0df;        /* tono Siemens-like */
+      --accent:#22d3ee;
+      --ok:#10b981;
+      --warn:#f59e0b;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--fg); background: radial-gradient(1200px 800px at 80% -10%, rgba(34,211,238,.18), transparent 60%),
+                         radial-gradient(900px 500px at -10% 120%, rgba(0,160,223,.18), transparent 60%),
+                         var(--bg);
+      overflow:hidden; /* Previene el scroll del body, la navegación es por slides */
+    }
+    /* Contenedor del deck */
+    .deck{position:relative; height:100%; width:100%; display:grid; grid-template-rows:auto 1fr auto;}
+    header, footer{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 18px; backdrop-filter:saturate(140%) blur(6px)}
+    header{background:rgba(17,24,39,.55); border-bottom:1px solid rgba(255,255,255,.08)}
+    footer{background:rgba(17,24,39,.55); border-top:1px solid rgba(255,255,255,.08)}
+
+    .brand{display:flex; align-items:center; gap:14px}
+    .brand .logo{
+      width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-weight:900; letter-spacing:.5px;
+      color:#00324f; background:linear-gradient(180deg,#8be3ff,#33c3f2); box-shadow:0 6px 24px rgba(34,211,238,.35);
+    }
+    .brand .meta{line-height:1.15}
+    .meta .title{font-size:18px; font-weight:800}
+    .meta .subtitle{font-size:12px; color:var(--muted)}
+
+    .controls{display:flex; gap:8px; align-items:center}
+    button, .chip{
+      appearance:none; border:0; background:var(--card); color:var(--fg); padding:10px 14px; border-radius:12px;
+      cursor:pointer; font-weight:600; transition:transform .06s ease, background .2s ease, box-shadow .2s ease;
+      box-shadow:0 2px 10px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    button:hover{transform:translateY(-1px); background:#0b1220}
+    button:active{transform:translateY(0)}
+    .primary{background:linear-gradient(180deg, rgba(0,160,223,.95), rgba(0,160,223,.75)); color:#04202c}
+    .ghost{background:transparent; box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+
+    /* Área de diapositivas */
+    .stage{position:relative; height:100%; overflow:hidden}
+    .slides{display:flex; height:100%; transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+    .slide{
+      min-width:100%;
+      padding: 36px 24px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* Alinea arriba para facilitar scroll */
+      overflow-y: auto; /* Permite scroll vertical por slide */
+    }
+    .card{width:min(1000px, 92vw); max-width:1000px; border-radius:var(--radius); padding:36px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+          border:1px solid rgba(255,255,255,.08); box-shadow:0 10px 40px rgba(0,0,0,.35)}
+
+    h1{margin:0 0 8px; font-size:42px}
+    h2{margin:0 0 20px; font-size:28px}
+    h3{margin:18px 0 6px; font-size:18px; color:var(--accent)}
+    p{margin:6px 0 14px; color:#e7eef6}
+    ul{margin:8px 0 0 18px; padding-left: 10px;}
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .kicker{font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent)}
+    .grid{display:grid; gap:14px}
+    .cols-2{grid-template-columns:repeat(2, minmax(0,1fr))}
+    .cols-3{grid-template-columns:repeat(3, minmax(0,1fr))}
+    .pill{display:inline-block; padding:8px 12px; border-radius:999px; background:rgba(34,211,238,.12); color:#8be3ff; font-weight:700; font-size:12px}
+    .muted{color:var(--muted)}
+
+    /* Acordeón */
+    details{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:12px 14px}
+    summary{cursor:pointer; font-weight:700}
+    details > div{padding:8px 4px 2px}
+
+    /* Tarjetas de casos y servicios */
+    .case, .service-card {
+      border-radius:14px; padding:20px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      display:flex; flex-direction:column;
+    }
+    .case h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .service-card h3 { margin-top:0; font-size: 16px; }
+    .service-card p { font-size:14px; color:var(--muted); flex-grow:1; }
+    .badge{display:inline-block; font-size:12px; font-weight:800; padding:6px 10px; border-radius:999px; background:rgba(16,185,129,.18); color:#7af0c2}
+
+    /* Progreso */
+    .progress{height:6px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
+    .progress > i{display:block; height:100%; background:linear-gradient(90deg, var(--brand), var(--accent)); width:0%}
+
+    /* Navegación rápida */
+    .dots{display:flex; gap:8px; align-items:center}
+    .dot{width:10px; height:10px; border-radius:999px; background:rgba(255,255,255,.2); cursor:pointer}
+    .dot.active{background:var(--accent)}
+
+    /* Modal Índice */
+    .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.55); z-index: 50;}
+    .modal.open{display:grid}
+    .modal .panel{width:min(900px,92vw); max-height:78vh; overflow:auto; background:var(--card); border-radius:18px; padding:16px; border:1px solid rgba(255,255,255,.1)}
+    .panel h3{margin:6px 0 12px}
+    .panel .link{display:flex; justify-content:space-between; gap:16px; padding:12px 14px; border-radius:12px; cursor:pointer; background:rgba(255,255,255,.03)}
+    .panel .link:hover{background:rgba(255,255,255,.06)}
+
+    /* Banderas de marca */
+    .tags{display:flex; flex-wrap:wrap; gap:10px}
+    .tag{padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); font-weight:700}
+
+    /* Responsivo */
+    @media (max-width:800px){
+      .slide { padding: 24px 16px; align-items: flex-start; }
+      .card{padding:24px}
+      h1{font-size:32px}
+      h2{font-size:22px}
+      .cols-2, .cols-3{grid-template-columns:1fr}
+      .meta .subtitle { display: none; } /* Ocultar subtitulo en movil */
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" role="application" aria-label="Presentación de I.R. SALAME C.A.">
+    <header>
+      <div class="brand" aria-label="Identidad">
+        <div class="logo" aria-hidden="true">IR</div>
+        <div class="meta">
+          <div class="title">Instalación y Repuestos SALAME C.A.</div>
+          <div class="subtitle">Soluciones de Ingeniería y Automatización Industrial — <span class="pill">SIEMENS Solution Partner</span></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="btnIndex" class="ghost" title="Índice (M)">Índice</button>
+        <button id="btnPrev" class="ghost" title="Anterior (←)">←</button>
+        <button id="btnNext" class="primary" title="Siguiente (→)">Siguiente →</button>
+      </div>
+    </header>
+
+    <main class="stage" tabindex="0">
+      <div id="slides" class="slides" aria-live="polite">
+        <!-- 0. Portada -->
+        <section class="slide">
+          <div class="card">
+            <div class="kicker">Desde 1995, su Aliado Estratégico</div>
+            <h1>Soluciones de Electricidad, Electrónica y Automatización</h1>
+            <p>Ofrecemos productos de primera calidad y soluciones efectivas a bajo costo, con asistencia técnica de alto nivel para la máxima satisfacción de nuestros clientes.</p>
+            <div class="tags" aria-label="Puntos clave">
+              <span class="tag">Automatización</span>
+              <span class="tag">Control</span>
+              <span class="tag">Servicio Técnico</span>
+              <span class="tag">Proyectos</span>
+              <span class="tag">Adiestramiento</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 1. Servicios y Productos (vista general) -->
+        <section class="slide">
+          <div class="card">
+            <h2>Nuestros Servicios y Productos</h2>
+            <div class="grid cols-3">
+              <div class="service-card">
+                <h3>Automatización y Control</h3>
+                <p>Líneas de producción, diseño y montaje de tableros, e instalación de sistemas de instrumentación.</p>
+              </div>
+              <div class="service-card">
+                <h3>Venta de Componentes</h3>
+                <p>Amplio stock de PLC, HMI, Logos, variadores, arrancadores, sensores y componentes de redes industriales.</p>
+              </div>
+              <div class="service-card">
+                <h3>Servicios Técnicos</h3>
+                <p>Taller autorizado Siemens, soporte, mantenimiento industrial, revisiones periódicas y rebobinado de motores.</p>
+              </div>
+              <div class="service-card">
+                <h3>Proyectos e Instalaciones</h3>
+                <p>Sistemas de detección de incendios, hidroneumáticos, proyectos de alumbrado y compensación reactiva.</p>
+              </div>
+              <div class="service-card">
+                <h3>Adiestramiento Técnico</h3>
+                <p>Cursos y seminarios teórico-prácticos en sitio sobre toda la gama de productos y soluciones Siemens.</p>
+              </div>
+               <div class="service-card">
+                <h3>Marcas de Confianza</h3>
+                <p>Trabajamos con líderes de la industria como SIEMENS, RITTAL, PHOENIX CONTACT, HYUNDAI y WEG.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Casos de éxito -->
+        <section class="slide">
+          <div class="card">
+            <h2>Casos de Éxito</h2>
+            <div class="grid cols-2">
+              <div class="case">
+                <h3>Pepsi-Cola — Migración Tecnológica</h3>
+                <p class="muted"><em>Reto:</em> HMIs obsoletos (CIP, Pasteurizadora, Robots) con riesgo de paradas.</p>
+                <details>
+                  <summary>Ver solución</summary>
+                  <div>
+                    Migración de paneles Siemens OP7, OP17 y TP27 a modelos modernos (KP400 y OP170), mejorando compatibilidad e interfaz de operación.
+                  </div>
+                </details>
+              </div>
+
+              <div class="case">
+                <h3>Kimberly Clark — Modernización</h3>
+                <p class="muted"><em>Reto:</em> Equipos de control de distintas marcas que complicaban mantenimiento.</p>
+                <details>
+                  <summary>Ver solución</summary>
+                  <div>
+                    Sustitución de 12 variadores por Siemens Micromaster MM440 y migración de PLC a Siemens S7-300 para unificar la plataforma de control.
+                  </div>
+                </details>
+              </div>
+
+              <div class="case">
+                <h3>Cartonera del Caribe — Automatización</h3>
+                <p class="muted"><em>Reto:</em> Control manual y obsoleto en fabricación de bobinas de papel.</p>
+                <details>
+                  <summary>Ver solución</summary>
+                  <div>
+                    Automatización completa con PLC S7-300 y 12 variadores Siemens comunicados por PROFIBUS DP, sincronizando toda la máquina.
+                  </div>
+                </details>
+              </div>
+
+              <div class="case">
+                <h3>Acumuladores TITAN — Migración Multi‑marca</h3>
+                <p class="muted"><em>Reto:</em> Panel de operador Hitachi sin soporte ni repuestos.</p>
+                <details>
+                  <summary>Ver solución</summary>
+                  <div>
+                    Migración a panel Siemens OP177B, adaptando programación y comunicación para integrarse con el PLC existente.
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Contacto -->
+        <section class="slide">
+          <div class="card">
+            <h2>Contáctanos</h2>
+            <div class="grid cols-2">
+              <div>
+                <h3>Coordenadas</h3>
+                <ul>
+                  <li>Teléfonos: (0243) 246-3613 / 246-2934</li>
+                  <li>Email: <a href="mailto:administracion@irs.com.ve">administracion@irs.com.ve</a></li>
+                  <li>Dirección: Calle Mariño Sur, Nro. 76-B, Maracay, Edo. Aragua.</li>
+                  <li>RIF: J-30275184-5</li>
+                </ul>
+              </div>
+              <div>
+                <h3>¿Por qué nosotros?</h3>
+                <ul>
+                  <li>Experiencia desde 1995</li>
+                  <li>Partner certificado Siemens</li>
+                  <li>Soporte técnico especializado</li>
+                  <li>Soluciones costo-efectivas</li>
+                </ul>
+              </div>
+            </div>
+            <p class="muted" style="margin-top: 24px;">Use ← → o botones para navegar. Presione “Índice” para saltar a cualquier sección.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="progress" aria-label="Progreso"><i id="bar"></i></div>
+      <div class="dots" id="dots" aria-label="Diapositivas"></div>
+    </footer>
+  </div>
+
+  <!-- Modal Índice -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="panel">
+      <h3 id="modalTitle">Índice de la Presentación</h3>
+      <div id="indexList" class="grid"></div>
+      <div style="display:flex; justify-content:flex-end; margin-top:12px">
+        <button id="btnClose" class="ghost">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const track = document.getElementById('slides');
+    const bar = document.getElementById('bar');
+    const dots = document.getElementById('dots');
+    const modal = document.getElementById('modal');
+    const indexList = document.getElementById('indexList');
+
+    let i = 0;
+
+    const titles = [
+      'Portada',
+      'Servicios y Productos',
+      'Casos de Éxito',
+      'Contacto'
+    ];
+
+    function go(n){
+      i = Math.max(0, Math.min(slides.length-1, n));
+      const x = -i*100;
+      track.style.transform = `translateX(${x}%)`;
+      const pct = (i)/(slides.length-1) * 100;
+      bar.style.width = pct + '%';
+      renderDots();
+      localStorage.setItem('irsalame_slide', i);
+    }
+
+    function next(){ go(i+1) }
+    function prev(){ go(i-1) }
+
+    function renderDots(){
+      dots.innerHTML = '';
+      slides.forEach((_, idx)=>{
+        const d = document.createElement('div');
+        d.className = 'dot' + (idx===i ? ' active' : '');
+        d.title = titles[idx] || `Slide ${idx+1}`;
+        d.onclick = ()=>go(idx);
+        dots.appendChild(d);
+      })
+    }
+
+    // Índice modal
+    function openIndex(){
+      modal.classList.add('open');
+      indexList.innerHTML = '';
+      slides.forEach((el, idx)=>{
+        const row = document.createElement('div');
+        row.className = 'link';
+        row.innerHTML = `<span>${idx+1}. ${titles[idx] || 'Sección'}</span><span class="muted">Ir →</span>`;
+        row.onclick = ()=>{ modal.classList.remove('open'); go(idx); };
+        indexList.appendChild(row);
+      })
+    }
+    function closeIndex(){ modal.classList.remove('open') }
+
+    // Eventos UI
+    document.getElementById('btnNext').onclick = next;
+    document.getElementById('btnPrev').onclick = prev;
+    document.getElementById('btnIndex').onclick = openIndex;
+    document.getElementById('btnClose').onclick = closeIndex;
+
+    // Navegación por teclado y gestos
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='ArrowRight') next();
+      if(e.key==='ArrowLeft') prev();
+      if(e.key.toLowerCase()==='m') openIndex();
+      if(e.key==='Escape') closeIndex();
+    })
+
+    // Gestos táctiles simples para swipe horizontal
+    let sx = 0; let sy = 0;
+    document.querySelector('.stage').addEventListener('touchstart',e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY }, {passive: true});
+    document.querySelector('.stage').addEventListener('touchend',e=>{
+      const dx = e.changedTouches[0].clientX - sx;
+      const dy = e.changedTouches[0].clientY - sy;
+      // Solo activa el swipe si el movimiento horizontal es mayor que el vertical
+      if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40){ dx<0 ? next() : prev(); }
+    });
+
+    // Restaurar última vista
+    const saved = +localStorage.getItem('irsalame_slide');
+    if(!Number.isNaN(saved)) i = saved;
+
+    renderDots();
+    go(i);
+  </script>
+</body>
+</html>
